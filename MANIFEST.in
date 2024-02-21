@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include qcs_as_so_po *.css
+recursive-include qcs_as_so_po *.csv
+recursive-include qcs_as_so_po *.html
+recursive-include qcs_as_so_po *.ico
+recursive-include qcs_as_so_po *.js
+recursive-include qcs_as_so_po *.json
+recursive-include qcs_as_so_po *.md
+recursive-include qcs_as_so_po *.png
+recursive-include qcs_as_so_po *.py
+recursive-include qcs_as_so_po *.svg
+recursive-include qcs_as_so_po *.txt
+recursive-exclude qcs_as_so_po *.pyc
