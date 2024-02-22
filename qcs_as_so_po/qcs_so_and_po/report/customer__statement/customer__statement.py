@@ -18,6 +18,7 @@ from erpnext.accounts.report.utils import convert_to_presentation_currency, get_
 from erpnext.accounts.utils import get_account_currency
 
 # to cache translations
+# add to site
 TRANSLATIONS = frappe._dict()
 
 
