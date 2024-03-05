@@ -171,19 +171,20 @@ def get_result(filters, account_details):
 	if filters.get("party"):
 		query_filters.append(["customer", "in", filters.get("party")])
 
-	doc1 = frappe.get_all("Sales Order", filters=query_filters, fields=["sum(grand_total) as grand_total"])[0]
-	data.append({"account": "Open Orders", "indent":0,  "balance": doc1.get('grand_total', 0)})
- 
-	doc = frappe.get_all("Sales Order", filters=query_filters, fields=["name", "transaction_date"])
-	sales_total = []
-	if doc:
-		for i in doc:
-			sales_doc = frappe.get_doc("Sales Order", i)
-			sales_total.append(sales_doc.grand_total)
-			data.append({"posting_date": sales_doc.transaction_date, "account": sales_doc.status, "balance": sales_doc.grand_total, "voucher_type": "Sales Order", "voucher_no": sales_doc.name, "party_type": "Customer", "party": sales_doc.customer, "indent":1})
-	data.append({"account": "Order Total", "balance": sum(sales_total), "indent": 1})
-	to_bal = doc1.get('grand_total', 0) + sum(clo_total)
-	data.append({"account": "Total Balance", "balance": to_bal})
+	if (frappe.get_all("Sales Order", filters=query_filters, fields=["name", "total"])):
+		doc1 = frappe.get_all("Sales Order", filters=query_filters, fields=["sum(grand_total) as grand_total"])[0]
+		data.append({"account": "Open Orders", "indent":0,  "balance": doc1.get('grand_total', 0)})
+	
+		doc = frappe.get_all("Sales Order", filters=query_filters, fields=["name", "transaction_date"])
+		sales_total = []
+		if doc:
+			for i in doc:
+				sales_doc = frappe.get_doc("Sales Order", i)
+				sales_total.append(sales_doc.grand_total)
+				data.append({"posting_date": sales_doc.transaction_date, "account": sales_doc.status, "balance": sales_doc.grand_total, "voucher_type": "Sales Order", "voucher_no": sales_doc.name, "party_type": "Customer", "party": sales_doc.customer, "indent":1})
+		data.append({"account": "Order Total", "balance": sum(sales_total), "indent": 1})
+		to_bal = doc1.get('grand_total', 0) + sum(clo_total)
+		data.append({"account": "Total Balance", "balance": to_bal})
 	return data
 
 
