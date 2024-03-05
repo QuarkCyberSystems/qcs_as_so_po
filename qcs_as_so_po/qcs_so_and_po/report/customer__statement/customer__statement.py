@@ -181,7 +181,7 @@ def get_result(filters, account_details):
 			for i in doc:
 				sales_doc = frappe.get_doc("Sales Order", i)
 				sales_total.append(sales_doc.grand_total)
-				data.append({"posting_date": sales_doc.transaction_date, "account": sales_doc.status, "balance": sales_doc.grand_total, "voucher_type": "Sales Order", "voucher_no": sales_doc.name, "party_type": "Customer", "party": sales_doc.customer, "indent":1})
+				data.append({"posting_date": sales_doc.transaction_date, "account": sales_doc.status, "balance": sales_doc.grand_total, "voucher_type": "Sales Order", "voucher_no": sales_doc.name, "party_type": "Customer", "party": sales_doc.customer, "project": sales_doc.project, "indent":1})
 		data.append({"account": "Order Total", "balance": sum(sales_total), "indent": 1})
 		to_bal = doc1.get('grand_total', 0) + sum(clo_total)
 		data.append({"account": "Total Balance", "balance": to_bal})
@@ -624,7 +624,7 @@ def get_columns(filters):
 				"width": 100,
 			},
 			{"label": _("Supplier Invoice No"), "fieldname": "bill_no", "fieldtype": "Data", "width": 100},
-			{"label": _("Remarks"), "fieldname": "remarks", "width": 400},
+			# {"label": _("Remarks"), "fieldname": "remarks", "width": 400},
 		]
 	)
 
