@@ -26,7 +26,7 @@
 		<tr>
 			<th style="width: 12%">{%= __("Date") %}</th>
 			<th style="width: 15%">{%= __("Reference") %}</th>
-			<th style="width: 25%">{%= __("Remarks") %}</th>
+			
 			<th style="width: 15%">{%= __("Debit") %}</th>
 			<th style="width: 15%">{%= __("Credit") %}</th>
 			<th style="width: 18%">{%= __("Balance (Dr - Cr)") %}</th>
@@ -41,19 +41,7 @@
 					<br>{%= data[i].voucher_no %}
 				</td>
 				{% var longest_word = cstr(data[i].remarks).split(" ").reduce((longest, word) => word.length > longest.length ? word : longest, ""); %}
-				<td {% if longest_word.length > 45 %} class="overflow-wrap-anywhere" {% endif %}>
-					<span>
-					{% if(!(filters.party || filters.account)) { %}
-						{%= data[i].party || data[i].account %}
-						<br>
-					{% } %}
 
-					<br>{%= __("Remarks") %}: {%= data[i].voucher_no %}
-					{% if(data[i].bill_no) { %}
-						<br>{%= __("Supplier Invoice No") %}: {%= data[i].bill_no %}
-					{% } %}
-					</span>
-				</td>
 				<td style="text-align: right">
 					{%= format_currency(data[i].debit, filters.presentation_currency) %}
 				</td>
