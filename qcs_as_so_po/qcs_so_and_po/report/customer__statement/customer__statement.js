@@ -193,7 +193,7 @@ frappe.query_reports["Customer  Statement"] = {
 	],
 	"formatter": function(value, row, column, data, default_formatter) {
 		value = default_formatter(value, row, column, data);
-		if (data && data.account==="Open Orders" || data.account==="Total Balance" || data.account ==="'Closing (Opening + Total)'") {
+		if (data && data.account==="Open Sales Orders" || data.account==="Open Purchase Orders" || data.account==="Total Balance" || data.account ==="'Closing (Opening + Total)'") {
 			value = value.bold();
 
 		}

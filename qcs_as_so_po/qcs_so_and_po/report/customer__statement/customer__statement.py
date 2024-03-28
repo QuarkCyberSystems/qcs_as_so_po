@@ -156,13 +156,15 @@ def get_result(filters, account_details):
 
 	result = get_result_as_list(data, filters)
  
+	test_value = []
 	data = []
 	clo_total = []
 	for i in result:
 		data.append(i)
 		if (i.get("account") == "'Closing (Opening + Total)'"):
 			clo_total.append(i.get("balance"))
-  
+#  Sales Orders
+
 	query_filters = []
 	query_filters.append(["company", "=", filters.get("company")])
 	query_filters.append(["transaction_date", ">=", filters.get("from_date")])
@@ -173,7 +175,8 @@ def get_result(filters, account_details):
 
 	if (frappe.get_all("Sales Order", filters=query_filters, fields=["name", "total"])):
 		doc1 = frappe.get_all("Sales Order", filters=query_filters, fields=["sum(grand_total) as grand_total"])[0]
-		data.append({"account": "Open Orders", "indent":0,  "balance": doc1.get('grand_total', 0)})
+		data.append({"account": "Open Sales Orders", "indent":0,  "balance": doc1.get('grand_total', 0)})
+		test_value.append(doc1.get('grand_total', 0))
 	
 		doc = frappe.get_all("Sales Order", filters=query_filters, fields=["name", "transaction_date"])
 		sales_total = []
@@ -182,8 +185,33 @@ def get_result(filters, account_details):
 				sales_doc = frappe.get_doc("Sales Order", i)
 				sales_total.append(sales_doc.grand_total)
 				data.append({"posting_date": sales_doc.transaction_date, "account": sales_doc.status, "balance": sales_doc.grand_total, "voucher_type": "Sales Order", "voucher_no": sales_doc.name, "party_type": "Customer", "party": sales_doc.customer, "project": sales_doc.project, "indent":1})
-		data.append({"account": "Order Total", "balance": sum(sales_total), "indent": 1})
-		to_bal = doc1.get('grand_total', 0) + sum(clo_total)
+		data.append({"account": "Sales Order Total", "balance": sum(sales_total), "indent": 1})
+#  Purchase Orders
+
+	query_filters1 = []
+	query_filters1.append(["company", "=", filters.get("company")])
+	query_filters1.append(["transaction_date", ">=", filters.get("from_date")])
+	query_filters1.append(["transaction_date", "<=", filters.get("to_date")])
+	query_filters1.append(["docstatus", "=", 1])
+	if filters.get("party"):
+		query_filters1.append(["supplier", "in", filters.get("party")])
+
+	if (frappe.get_all("Purchase Order", filters=query_filters1, fields=["name", "total"])):
+		doc2 = frappe.get_all("Purchase Order", filters=query_filters1, fields=["sum(grand_total) as grand_total"])[0]
+		data.append({"account": "Open Purchase Orders", "indent":0,  "balance": doc2.get('grand_total', 0)})
+		test_value.append(doc2.get('grand_total', 0))
+	
+		doc1 = frappe.get_all("Purchase Order", filters=query_filters1, fields=["name", "transaction_date"])
+		purchase_total = []
+		if doc1:
+			for i in doc1:
+				purchase_doc = frappe.get_doc("Purchase Order", i)
+				purchase_total.append(purchase_doc.grand_total)
+				data.append({"posting_date": purchase_doc.transaction_date, "account": purchase_doc.status, "balance": purchase_doc.grand_total, "voucher_type": "Purchase Order", "voucher_no": purchase_doc.name, "party_type": "Supplier", "party": purchase_doc.supplier, "project": purchase_doc.project, "indent":1})
+		data.append({"account": "Purchase Order Total", "balance": sum(purchase_total), "indent": 1})
+  
+	if (test_value):
+		to_bal = sum(test_value) + sum(clo_total)
 		data.append({"account": "Total Balance", "balance": to_bal})
 	return data
 
