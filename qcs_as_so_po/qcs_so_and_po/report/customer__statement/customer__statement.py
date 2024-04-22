@@ -170,6 +170,7 @@ def get_result(filters, account_details):
 	query_filters.append(["transaction_date", ">=", filters.get("from_date")])
 	query_filters.append(["transaction_date", "<=", filters.get("to_date")])
 	query_filters.append(["docstatus", "=", 1])
+	query_filters.append(["status", "!=", "Completed"])
 	if filters.get("party"):
 		query_filters.append(["customer", "in", filters.get("party")])
 
@@ -193,6 +194,7 @@ def get_result(filters, account_details):
 	query_filters1.append(["transaction_date", ">=", filters.get("from_date")])
 	query_filters1.append(["transaction_date", "<=", filters.get("to_date")])
 	query_filters1.append(["docstatus", "=", 1])
+	query_filters1.append(["status", "!=", "Completed"])
 	if filters.get("party"):
 		query_filters1.append(["supplier", "in", filters.get("party")])
 
