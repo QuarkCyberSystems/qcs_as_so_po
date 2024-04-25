@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 /* eslint-disable */
 
-frappe.query_reports["Gross  Profit"] = {
+frappe.query_reports["TSC Gross Profit"] = {
 	"filters": [
 		{
 			"fieldname": "company",
