@@ -140,7 +140,7 @@ def get_data(filters):
 			cus_data["invoiced_outstanding"] = inv_amount[0] - pay_amount[0]
 			cus_data["so_outstanding"] = i.get("grand_total") - pay_amount[0]
 			cus_data["open_so"] =  cus_data["sales_order_amount"] - cus_data["invoiced_amount"]
-			cus_data["final_receivable"] = cus_data["open_so"] + cus_data["invoiced_amount"] - cus_data["credit_amount"] - cus_data["advance_amount"] - cus_data["paid_amount"]
+			cus_data["final_receivable"] = cus_data["open_so"] + cus_data["invoiced_amount"] - cus_data["credit_amount"] - cus_data["paid_amount"]
 			
 			data.append(cus_data)
 					
