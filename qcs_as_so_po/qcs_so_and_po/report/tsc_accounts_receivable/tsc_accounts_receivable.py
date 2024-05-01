@@ -67,6 +67,7 @@ def get_data(filters):
 	query_filters.append(["company", "=", filters.get("company")])
 	query_filters.append(["transaction_date", ">=", filters.get("from_date")])
 	query_filters.append(["transaction_date", "<=", filters.get("to_date")])
+	query_filters.append(["per_billed", "<", 100])
 	if filters.get("customer"):
 		query_filters.append(["customer", "=", filters.get("customer")])
 	query_filters.append(["docstatus", "=", 1])
@@ -128,7 +129,8 @@ def get_data(filters):
     
 			cus_data["invoiced_outstanding"] = inv_amount[0] - pay_amount[0]
 			cus_data["so_outstanding"] = i.get("grand_total") - pay_amount[0]
-
+			cus_data["sales_order_amount"] == cus_data["invoiced_amount"]
+			cus_data[""]
 			data.append(cus_data)
 					
 	return data
