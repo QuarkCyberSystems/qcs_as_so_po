@@ -57,6 +57,16 @@ def get_columns(filters):
 			"label": ("Invoiced Outstanding"),
 			"fieldtype": "Currency",
 		},
+		{
+			"fieldname": "open_so",
+			"label": ("Open SO"),
+			"fieldtype": "Currency",
+		},
+		{
+			"fieldname": "final_receivable",
+			"label": ("Final Receivable"),
+			"fieldtype": "Currency",
+		},
 	]
 	return columns
 
@@ -67,7 +77,7 @@ def get_data(filters):
 	query_filters.append(["company", "=", filters.get("company")])
 	query_filters.append(["transaction_date", ">=", filters.get("from_date")])
 	query_filters.append(["transaction_date", "<=", filters.get("to_date")])
-	query_filters.append(["per_billed", "<", 100])
+	#query_filters.append(["per_billed", "<", 100])
 	if filters.get("customer"):
 		query_filters.append(["customer", "=", filters.get("customer")])
 	query_filters.append(["docstatus", "=", 1])
@@ -129,8 +139,9 @@ def get_data(filters):
     
 			cus_data["invoiced_outstanding"] = inv_amount[0] - pay_amount[0]
 			cus_data["so_outstanding"] = i.get("grand_total") - pay_amount[0]
-			cus_data["sales_order_amount"] == cus_data["invoiced_amount"]
-			cus_data[""]
+			cus_data["open_so"] =  cus_data["sales_order_amount"] - cus_data["invoiced_amount"]
+			cus_data["final_receivable"] = cus_data["open_so"] + cus_data["invoiced_amount"] - cus_data["credit_amount"] - cus_data["advance_amount"] - cust_data["paid_amount"]
+			
 			data.append(cus_data)
 					
 	return data
