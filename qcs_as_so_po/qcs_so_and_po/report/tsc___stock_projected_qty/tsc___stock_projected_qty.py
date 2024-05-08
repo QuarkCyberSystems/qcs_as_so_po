@@ -96,9 +96,16 @@ def execute(filters=None):
  
 	so_items = frappe.get_all("Sales Order Item",fields=["parent", "item_code", "stock_qty", "delivered_qty"])
 	parent_sales_orders = set(item["parent"] for item in so_items)
-
+ 
 	filtered_parent_sales_orders = frappe.get_all("Sales Order", filters={"name": ["in", list(parent_sales_orders)], "docstatus": 1, "status": ["not in", ["Completed", "To Bill", "Closed"]]}, fields=["name"])
 	filtered_parent_sales_orders_set = set(so["name"] for so in filtered_parent_sales_orders)
+ 
+	so_packed_items = frappe.get_all("Packed Item",fields=["parent", "item_code"])
+	parent_packed_sales_orders = set(item["parent"] for item in so_packed_items)
+
+	filtered_parent_sales_orders1 = frappe.get_all("Sales Order", filters={"name": ["in", list(parent_packed_sales_orders)], "docstatus": 1, "status": ["not in", ["Completed", "To Bill", "Closed"]]}, fields=["name"])
+	filtered_parent_sales_orders_set1 = set(po["name"] for po in filtered_parent_sales_orders1)
+
 
 	so_dict = {}
 	for so_item in so_items:
@@ -110,8 +117,14 @@ def execute(filters=None):
 				pass
 			else:
 				so_dict[so_item["item_code"]].add(so_item["parent"])
+	
+	for packed_item in so_packed_items:
+		if packed_item["item_code"] not in so_dict:
+			so_dict[packed_item["item_code"]] = set()
 		
-	  
+		if packed_item["parent"] in filtered_parent_sales_orders_set1:
+			so_dict[packed_item["item_code"]].add(packed_item["parent"])
+		
    
 	#  Work Order
  
