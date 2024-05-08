@@ -94,7 +94,7 @@ def execute(filters=None):
  
 	# Sales Order
  
-	so_items = frappe.get_all("Sales Order Item",fields=["parent", "item_code"])
+	so_items = frappe.get_all("Sales Order Item",fields=["parent", "item_code", "stock_qty", "delivered_qty"])
 	parent_sales_orders = set(item["parent"] for item in so_items)
 
 	filtered_parent_sales_orders = frappe.get_all("Sales Order", filters={"name": ["in", list(parent_sales_orders)], "docstatus": 1, "status": ["not in", ["Completed", "To Bill", "Closed"]]}, fields=["name"])
@@ -104,12 +104,18 @@ def execute(filters=None):
 	for so_item in so_items:
 		if so_item["item_code"] not in so_dict:
 			so_dict[so_item["item_code"]] = set()
+		
 		if so_item["parent"] in filtered_parent_sales_orders_set:
-			so_dict[so_item["item_code"]].add(so_item["parent"])
+			if so_item["stock_qty"] <= so_item["delivered_qty"]:
+				pass
+			else:
+				so_dict[so_item["item_code"]].add(so_item["parent"])
+		
+	  
    
 	#  Work Order
  
-	wo_items = frappe.get_all("Work Order Item", fields=["parent", "item_code"])
+	wo_items = frappe.get_all("Work Order Item", fields=["parent", "item_code", "required_qty", "transferred_qty"])
 	parent_work_orders = set(item["parent"] for item in wo_items)
 
 	filtered_parent_work_orders = frappe.get_all("Work Order", filters={"name": ["in", list(parent_work_orders)], "status": ["in", ["In Process", "Not Started"]]}, fields=["name"])
@@ -120,11 +126,14 @@ def execute(filters=None):
 		if wo_item["item_code"] not in wo_dict:
 			wo_dict[wo_item["item_code"]] = set()
 		if wo_item["parent"] in filtered_parent_work_orders_set:
-			wo_dict[wo_item["item_code"]].add(wo_item["parent"])
+			if wo_item["required_qty"] == wo_item["transferred_qty"]:
+				pass
+			else:
+				wo_dict[wo_item["item_code"]].add(wo_item["parent"])
  
 	# Subcontracting Order
  
-	subcon_items = frappe.get_all("Subcontracting Order Supplied Item", fields=["parent", "main_item_code"])
+	subcon_items = frappe.get_all("Subcontracting Order Supplied Item", fields=["parent", "main_item_code", "required_qty", "consumed_qty"])
 	parent_subcon_orders = set(item["parent"] for item in subcon_items)
 
 	filtered_parent_subcon_orders = frappe.get_all("Subcontracting Order",
@@ -137,7 +146,10 @@ def execute(filters=None):
 		if subcon_item["main_item_code"] not in subcon_dict:
 			subcon_dict[subcon_item["main_item_code"]] = set()
 		if subcon_item["parent"] in filtered_parent_subcon_orders_set:
-			subcon_dict[subcon_item["main_item_code"]].add(subcon_item["parent"])
+			if subcon_item["required_qty"] == subcon_item["consumed_qty"]:
+				pass
+			else:
+				subcon_dict[subcon_item["main_item_code"]].add(subcon_item["parent"])
  
 	# Process data to insert Sales Order names
 	final_data = []
