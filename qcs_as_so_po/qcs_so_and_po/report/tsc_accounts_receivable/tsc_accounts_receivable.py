@@ -47,21 +47,21 @@ def get_columns(filters):
 			"label": ("Credit Note"),
 			"fieldtype": "Currency",
 		},
-		{
-			"fieldname": "so_outstanding",
-			"label": ("SO Outstanding"),
-			"fieldtype": "Currency",
-		},
-		{
-			"fieldname": "invoiced_outstanding",
-			"label": ("Invoiced Outstanding"),
-			"fieldtype": "Currency",
-		},
-		{
-			"fieldname": "open_so",
-			"label": ("Open SO"),
-			"fieldtype": "Currency",
-		},
+		# {
+		# 	"fieldname": "so_outstanding",
+		# 	"label": ("SO Outstanding"),
+		# 	"fieldtype": "Currency",
+		# },
+		# {
+		# 	"fieldname": "invoiced_outstanding",
+		# 	"label": ("Invoiced Outstanding"),
+		# 	"fieldtype": "Currency",
+		# },
+		# {
+		# 	"fieldname": "open_so",
+		# 	"label": ("Open SO"),
+		# 	"fieldtype": "Currency",
+		# },
 		{
 			"fieldname": "final_receivable",
 			"label": ("Final Receivable"),
@@ -77,7 +77,7 @@ def get_data(filters):
 	query_filters.append(["company", "=", filters.get("company")])
 	query_filters.append(["transaction_date", ">=", filters.get("from_date")])
 	query_filters.append(["transaction_date", "<=", filters.get("to_date")])
-	#query_filters.append(["per_billed", "<", 100])
+	query_filters.append(["status", "in", ["To Deliver and Bill", "To Bill", "On Hold"]])
 	if filters.get("customer"):
 		query_filters.append(["customer", "=", filters.get("customer")])
 	query_filters.append(["docstatus", "=", 1])
@@ -85,7 +85,24 @@ def get_data(filters):
 	doc = frappe.get_all("Sales Order", filters=query_filters, fields=["customer", "sum(grand_total) as grand_total", "sum(advance_paid) as advance_paid"], group_by="customer")
 	if (doc):
 		for i in doc:
-			cus_data = {"customer": i.get("customer"), "sales_order_amount": i.get("grand_total"), "advance_amount": i.get("advance_paid")}
+      
+			cus_data = {"customer": i.get("customer"), "advance_amount": i.get("advance_paid")}
+   
+			query_filters0 = []
+			query_filters0.append(["company", "=", filters.get("company")])
+			query_filters0.append(["transaction_date", ">=", filters.get("from_date")])
+			query_filters0.append(["transaction_date", "<=", filters.get("to_date")])
+			query_filters0.append(["status", "in", ["To Deliver and Bill", "To Bill", "On Hold"]])
+			query_filters0.append(["customer", "=", i.get("customer")])
+			query_filters0.append(["docstatus", "=", 1])
+   
+			so_amount_based_on_perbilled = []
+			so_ind = frappe.get_all("Sales Order", filters=query_filters0, fields=["customer", "grand_total", "per_billed"])
+			for so in so_ind:
+				so_grand_amount = so.get("grand_total") * (1 - so.get("per_billed") / 100)
+				so_amount_based_on_perbilled.append(so_grand_amount)
+			cus_data["sales_order_amount"] = sum(so_amount_based_on_perbilled)
+
 
 			query_filters1 = []
 			query_filters1.append(["company", "=", filters.get("company")])
@@ -138,9 +155,10 @@ def get_data(filters):
 				pay_amount.append(0)
     
 			cus_data["invoiced_outstanding"] = inv_amount[0] - pay_amount[0]
-			cus_data["so_outstanding"] = i.get("grand_total") - pay_amount[0]
-			cus_data["open_so"] =  cus_data["sales_order_amount"] - cus_data["invoiced_amount"]
-			cus_data["final_receivable"] = cus_data["open_so"] + cus_data["invoiced_amount"] - cus_data["credit_amount"] - cus_data["paid_amount"]
+			cus_data["so_outstanding"] = sum(so_amount_based_on_perbilled) - pay_amount[0]
+			# cus_data["open_so"] =  cus_data["sales_order_amount"] - cus_data["invoiced_amount"]
+			# cus_data["final_receivable"] = cus_data["open_so"] + cus_data["invoiced_amount"] - cus_data["credit_amount"] - cus_data["paid_amount"]
+			cus_data["final_receivable"] = cus_data["sales_order_amount"] + cus_data["invoiced_amount"] - cus_data["credit_amount"] - cus_data["paid_amount"]
 			
 			data.append(cus_data)
 					
